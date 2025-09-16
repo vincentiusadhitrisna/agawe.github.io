@@ -92,7 +92,8 @@ div.gallery {
   transform: translate(-50%, -50%);
   justify-content: center;
   padding: 1rem;
-  transition: 2s linear;
+  transition: transform 5s cubic-bezier(0.42, 0, 0.58, 1);
+
 }
 
 div.row {
@@ -118,6 +119,8 @@ div.item {
 }
 div.item:hover {
   filter: grayscale(0);
+  transform: scale(1.05); /* Tambahkan baris ini untuk zoom 5% */
+  z-index: 2; /* Tambahkan ini agar gambar tidak tertutup tetangganya */
 }
 
 div.item img {
@@ -212,15 +215,19 @@ div#credits a {
 }
 
 /* Transisi untuk animasi zoom */
+/* Hapus bagian ini dari .modal-image */
 .modal-image {
   display: block;
   max-width: 90vw;
   max-height: 80vh;
   object-fit: contain;
+  /* Transisi yang diperbarui untuk zoom dan opasitas */
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
               opacity 0.4s ease;
   transform-origin: center center;
-  opacity: 0; /* Mulai dengan transparan */
+  /* --- Hapus kedua baris ini (opacity: 0 dan transform) --- */
+  /* opacity: 0; */ 
+  /* transform: scale(0); */ /* Jika ada */
 }
 
 #image-modal.active .modal-image {
@@ -310,4 +317,55 @@ body.modal-is-active .logo-image {
   /* --- Perubahan Baru --- */
   height: auto; /* Biarkan tinggi kembali otomatis saat di pojok agar tidak terpotong */
   object-fit: contain; /* Ganti ke contain agar logo utuh saat kecil */
+}
+/* Tambahkan class baru ini di mana saja dalam file CSS Anda */
+div.gallery.is-resetting {
+  /* Transisi yang lebih cepat dan halus khusus untuk kembali ke tengah */
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+/* -- ANIMASI IDLE BARU (VERSI SUPER SMOOTH) -- */
+
+/* Keyframes untuk gerakan galeri utama (pan & zoom) */
+@keyframes idleDrift {
+  /* Titik Awal & Akhir: Sama dengan posisi default galeri */
+  0%, 100% {
+    transform: translate(-50%, -50%) translate(0, 0) scale(1.0);
+  }
+  25% {
+    transform: translate(-50%, -50%) translate(70px, 40px) scale(1.15);
+  }
+  50% {
+    transform: translate(-50%, -50%) translate(-80px, -60px) scale(1.2);
+  }
+  75% {
+    transform: translate(-50%, -50%) translate(-40px, 80px) scale(1.05);
+  }
+}
+
+/* Keyframes untuk paralaks gambar di dalam (gerakan berlawanan) */
+@keyframes idleImageParallax {
+  /* Titik Awal & Akhir: Sama dengan posisi default gambar */
+  0%, 100% {
+    transform: translate(-50%, -50%);
+  }
+  25% {
+    transform: translate(calc(-50% - 35px), calc(-50% - 20px));
+  }
+  50% {
+    transform: translate(calc(-50% + 40px), calc(-50% + 30px));
+  }
+  75% {
+    transform: translate(calc(-50% + 20px), calc(-50% - 40px));
+  }
+}
+
+/* Class yang akan kita tambahkan via JS saat idle */
+div.gallery.is-idle {
+  /* Terapkan animasi drift ke galeri utama */
+  animation: idleDrift 45s ease-in-out infinite alternate;
+}
+
+div.gallery.is-idle .item img {
+  /* Terapkan animasi paralaks ke gambar di dalam */
+  animation: idleImageParallax 45s ease-in-out infinite alternate;
 }
