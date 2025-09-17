@@ -325,47 +325,128 @@ div.gallery.is-resetting {
 }
 /* -- ANIMASI IDLE BARU (VERSI SUPER SMOOTH) -- */
 
-/* Keyframes untuk gerakan galeri utama (pan & zoom) */
-@keyframes idleDrift {
-  /* Titik Awal & Akhir: Sama dengan posisi default galeri */
-  0%, 100% {
+@keyframes idlePan {
+  /* Mulai dari tengah, tanpa zoom */
+  0% {
     transform: translate(-50%, -50%) translate(0, 0) scale(1.0);
   }
+  /* Bergerak ke kanan sambil sedikit zoom */
   25% {
-    transform: translate(-50%, -50%) translate(70px, 40px) scale(1.15);
+    transform: translate(-50%, -50%) translate(100px, 0) scale(1.05);
   }
+  /* Kembali ke tengah */
   50% {
-    transform: translate(-50%, -50%) translate(-80px, -60px) scale(1.2);
+    transform: translate(-50%, -50%) translate(0, 0) scale(1.0);
   }
+  /* Bergerak ke kiri sambil sedikit zoom */
   75% {
-    transform: translate(-50%, -50%) translate(-40px, 80px) scale(1.05);
+    transform: translate(-50%, -50%) translate(-100px, 0) scale(1.05);
+  }
+  /* Selesai di tengah, siap untuk loop berikutnya */
+  100% {
+    transform: translate(-50%, -50%) translate(0, 0) scale(1.0);
   }
 }
 
 /* Keyframes untuk paralaks gambar di dalam (gerakan berlawanan) */
-@keyframes idleImageParallax {
-  /* Titik Awal & Akhir: Sama dengan posisi default gambar */
-  0%, 100% {
+@keyframes idlePanImages {
+  /* Mulai & tengah: gambar diam */
+  0%, 50%, 100% {
     transform: translate(-50%, -50%);
   }
+  /* Saat galeri ke kanan, gambar sedikit ke kiri */
   25% {
-    transform: translate(calc(-50% - 35px), calc(-50% - 20px));
+    transform: translate(calc(-50% - 10px), -50%);
   }
-  50% {
-    transform: translate(calc(-50% + 40px), calc(-50% + 30px));
-  }
+  /* Saat galeri ke kiri, gambar sedikit ke kanan */
   75% {
-    transform: translate(calc(-50% + 20px), calc(-50% - 40px));
+    transform: translate(calc(-50% + 10px), -50%);
   }
 }
 
-/* Class yang akan kita tambahkan via JS saat idle */
+/* Pastikan aturan penerapan animasi ini tidak menggunakan 'alternate' */
 div.gallery.is-idle {
-  /* Terapkan animasi drift ke galeri utama */
-  animation: idleDrift 45s ease-in-out infinite alternate;
+  /* Hapus 'alternate' agar animasi berjalan sesuai alur keyframes */
+  animation: idlePan 40s linear infinite;
 }
 
 div.gallery.is-idle .item img {
-  /* Terapkan animasi paralaks ke gambar di dalam */
-  animation: idleImageParallax 45s ease-in-out infinite alternate;
+  animation: idlePanImages 40s linear infinite;
 }
+/* Add this new rule to your CSS */
+div.gallery.is-idle.is-paused,
+div.gallery.is-idle.is-paused .item img {
+  animation-play-state: paused;
+}
+
+/* === INTRO ANIMATION STYLES === */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes flyIn {
+  from {
+    opacity: 0;
+    /* Uses a variable that we will define for each item */
+    transform: var(--start-transform, translateY(80px)); 
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+/* --- Initial States --- */
+
+/* 1. Start with the logo invisible */
+body.intro-active .overlay .logo-image {
+  opacity: 0;
+}
+
+/* 2. Start with all gallery items invisible and ready to be animated */
+body.intro-active .gallery .item {
+  opacity: 0;
+}
+
+/* --- Animation Triggers (controlled by JavaScript) --- */
+
+/* This class will be added to the body to start the sequence */
+body.intro-active .overlay .logo-image {
+  /* Logo fades in over 1.5 seconds */
+  animation: fadeIn 1.5s ease-out forwards;
+}
+
+body.intro-active .gallery {
+  /* Prevent mouse interactions during the intro */
+  pointer-events: none;
+}
+
+/* This class is added later to start the gallery items animation */
+body.gallery-enter .gallery .item {
+  /* Each item flies in. 'forwards' keeps it in the final state */
+  animation: flyIn 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+
+/* --- Staggered "Broken" Starting Positions --- */
+/* We give each item a different starting position for a dynamic effect */
+
+/* Top Row */
+body.intro-active .item.nr1 { --start-transform: translate(-80px, -50px); animation-delay: 0.1s; }
+body.intro-active .item.nr2 { --start-transform: translateY(-80px); animation-delay: 0.2s; }
+body.intro-active .item.nr3 { --start-transform: translateY(-60px); animation-delay: 0.0s; }
+body.intro-active .item.nr4 { --start-transform: translate(80px, -50px); animation-delay: 0.25s; }
+
+/* Middle Row */
+body.intro-active .item.nr5 { --start-transform: translateX(-100px); animation-delay: 0.15s; }
+body.intro-active .item.nr6 { --start-transform: translateY(80px); animation-delay: 0.3s; }
+body.intro-active .item.nr7 { --start-transform: translateY(-80px); animation-delay: 0.35s; }
+body.intro-active .item.nr8 { --start-transform: translateX(100px); animation-delay: 0.2s; }
+
+/* Bottom Row */
+body.intro-active .item.nr9 { --start-transform: translate(-80px, 50px); animation-delay: 0.25s; }
+body.intro-active .item.nr10 { --start-transform: translateY(80px); animation-delay: 0.4s; }
+body.intro-active .item.nr11 { --start-transform: translateY(60px); animation-delay: 0.1s; }
+body.intro-active .item.nr12 { --start-transform: translate(80px, 50px); animation-delay: 0.3s; }
